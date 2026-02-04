@@ -17,19 +17,47 @@ A comprehensive skill for [Bee](https://www.bee.computer/) — the wearable AI t
 npx skills add Bluush-co/bee-skill
 ```
 
-# Bee CLI Skill
+## What This Skill Enables
 
-A Claude Code skill for interacting with [Bee](https://github.com/bluush-co/bee-cli) - the wearable AI that captures your conversations and learns about you.
+This skill gives AI agents real-time access to your personal context captured by Bee, enabling deeply personalized assistance based on what's happening right now and your life history.
 
-## Usage
+### Real-Time Context
 
-Once installed, Claude can help you:
+Your agent knows what's happening now:
+- **Live access** to conversations from the last 10 hours with full utterance transcripts
+- **Immediate awareness** of who you're talking to and what you're discussing
+- **Current context** to provide relevant assistance in the moment
 
-- "Sync my Bee data"
-- "Show my Bee facts"
-- "List my todos from Bee"
-- "What conversations did I have today?"
+Ask things like:
+- "What was I just talking about?"
+- "Summarize my meeting that just ended"
+- "What did they say about the deadline?"
+- "Help me follow up on what Sarah mentioned"
 
-## License 
+### Life Overview
+
+Your agent understands who you are:
+- **Personal facts** — your preferences, relationships, work, interests
+- **Conversation history** — searchable archive of past discussions
+- **Voice memos** — your captured thoughts and ideas
+- **Relationships** — who the people in your life are and your history with them
+
+Ask things like:
+- "Who is John and how do I know him?"
+- "What do I know about the company I'm meeting with tomorrow?"
+- "What have I been working on this week?"
+- "When did I last talk to my mom?"
+- "What restaurant did Mike recommend last month?"
+
+## Privacy & Security
+
+All Bee data is end-to-end encrypted and accessible only to you. The agent accesses your data through authenticated API calls — your conversations remain private and secure.
+
+## Requirements
+
+- [Bee CLI](https://github.com/bluush-co/bee-cli/releases/latest) installed
+- Bee account with authenticated session
+
+## License
 
 MIT

@@ -1,6 +1,6 @@
 ---
 name: bee-cli
-description: "Interact with Bee wearable AI data using the bee CLI tool. Use this skill when the user wants to: (1) Learn about the owner through their personal facts and captured conversations, (2) Access facts that Bee has learned about the user, (3) Read recent conversations and transcripts, (4) Search for relevant conversations on specific topics, (5) Sync Bee data to local markdown files, (6) Manage personal facts or todos, (7) Work with data from the Bee wearable device."
+description: "Access real-time context and life overview from Bee wearable AI. ALWAYS start with 'bee now' to get the last 10 hours of conversations with full utterances - this is the most valuable context for relevant assistance. Use this skill when: (1) You need to understand what's happening RIGHT NOW - recent conversations, current context, what was just discussed, (2) The user asks about something that just happened or someone they just talked to, (3) You need life context - who the owner is, their relationships, work, preferences, (4) Searching past conversations, managing facts/todos, or syncing Bee data."
 ---
 
 # Bee CLI
@@ -38,10 +38,20 @@ From these transcriptions, Bee automatically extracts and learns facts about the
 
 ## When to Use This Skill
 
-Use the Bee CLI skill when:
+### Real-Time Context (Use First!)
+
+**Always start with `bee now` to understand what's happening right now.** This is the most valuable context for providing relevant assistance:
+
+- The owner just finished a conversation and needs help following up
+- The owner is asking about something that was just discussed
+- You need current context to provide relevant suggestions
+- The owner wants to recall what someone just said
+
+### Life Overview
+
+Use for broader context about who the owner is:
 
 - **Learning about the owner**: Access facts that Bee has extracted from conversations to understand the owner's preferences, relationships, work, and personal details
-- **Reading recent conversations**: Review transcripts of recent discussions to recall what was said or find specific information
 - **Searching for relevant conversations**: Find past conversations on specific topics, with certain people, or about particular projects
 - **Managing personal knowledge**: View, update, or organize the facts Bee has learned
 - **Tracking commitments**: Access todos and action items extracted from conversations
@@ -303,19 +313,23 @@ Options:
 
 ### Quick Context - Understanding the Owner
 
-For quick context about the owner, always run these commands:
+For quick context about the owner, always run these commands in this order:
 ```bash
-bee facts list
 bee now
+bee facts list
 bee conversations list
 ```
 
-This provides:
-1. **Facts**: Who the owner is, their preferences, relationships, work details
-2. **Now**: Full utterance transcripts from the last 10 hours - actual words spoken in recent conversations
-3. **Conversations list**: Summaries of recent conversations for broader historical context
+**Start with `bee now`** — this is the most important command. It gives you:
+- Full utterance transcripts from the last 10 hours
+- Actual words spoken in recent conversations
+- Immediate context about what's happening right now
 
-Review facts first to understand who they are, use `bee now` to understand what's happening today with full detail, then check conversation summaries for longer-term context.
+Then supplement with:
+- **Facts**: Who the owner is, their preferences, relationships, work details
+- **Conversations list**: Summaries of older conversations for historical context
+
+The real-time context from `bee now` is what makes assistance relevant and timely.
 
 ### Finding Information from Past Conversations
 
