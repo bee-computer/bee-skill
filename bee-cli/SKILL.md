@@ -146,36 +146,49 @@ bee facts delete <id>
 
 ### Conversations - Access Transcripts
 
-Conversations are the raw transcripts of everything Bee has captured. Use these to find specific details, recall what was discussed, or search for information mentioned in past interactions.
+Conversations are records of everything Bee has captured. Use these to find specific details, recall what was discussed, or search for information mentioned in past interactions.
 
-List recent conversations:
+#### Listing Conversations
+
 ```bash
 bee conversations list
 ```
 
-View a specific conversation transcript:
+**Important**: This returns conversation **summaries only**, not full transcripts. Summaries are AI-generated and provide a quick overview of what was discussed, but they may contain minor inaccuracies or hallucinations. Use summaries to identify relevant conversations, then fetch full details for accuracy.
+
+Options:
+- `--limit <n>` - Number of conversations to return (default varies)
+- `--cursor <cursor>` - Pagination cursor for fetching more results
+
+#### Getting Full Conversation Details
+
+To get the complete conversation with all utterances (actual words spoken):
 ```bash
-bee conversations show <id>
+bee conversations get <id>
 ```
 
-Conversation transcripts include:
-- Full text of what was said
-- Speaker identification when possible
-- Timestamps and duration
-- Location or context when available
+This returns:
+- Full utterance transcripts (who said what, verbatim)
+- Speaker identification
+- Timestamps for each utterance
+- Conversation state and metadata
+
+**Always use `bee conversations get` when you need accurate information.** The summaries from `list` are useful for browsing and finding relevant conversations, but the actual utterances from `get` are the source of truth.
 
 ### Search for Relevant Conversations
 
 To find conversations about specific topics:
 
-1. List conversations to see available transcripts
-2. Review conversation summaries to identify relevant ones
-3. View full transcripts of matching conversations
+1. List conversations to browse summaries and identify potentially relevant ones
+2. Get full details for conversations that seem relevant
+3. Read the actual utterances to find accurate information
 
 ```bash
 bee conversations list
-bee conversations show <conversation-id>
+bee conversations get <conversation-id>
 ```
+
+Remember: Summaries may not capture everything or may slightly misrepresent what was said. When accuracy matters, always read the full utterances.
 
 ### Todos - Track Commitments
 
@@ -199,6 +212,30 @@ bee todos update <id> --text "Updated todo" --completed
 Delete a todo:
 ```bash
 bee todos delete <id>
+```
+
+### Now - Real-Time Context
+
+Get a comprehensive view of what's happening right now. Fetches conversations and full utterances from the last 10 hours:
+```bash
+bee now
+```
+
+This command returns:
+- All conversations from the past 10 hours
+- Full utterance transcripts (who said what)
+- Conversation summaries and states
+- Timestamps in the user's timezone
+
+Use `bee now` when you need to:
+- Understand what the owner has been doing today
+- Get context about recent discussions
+- See the actual words spoken in recent conversations
+- Provide relevant assistance based on current activities
+
+For JSON output (useful for programmatic processing):
+```bash
+bee now --json
 ```
 
 ### Daily Summaries
@@ -228,14 +265,19 @@ Options:
 
 ### Quick Context - Understanding the Owner
 
-For quick context about the owner:
+For quick context about the owner, always run these commands:
 ```bash
 bee facts list
-bee daily
+bee now
 bee conversations list
 ```
 
-Review facts first to understand who they are, then check recent daily summaries and conversations for current context.
+This provides:
+1. **Facts**: Who the owner is, their preferences, relationships, work details
+2. **Now**: Full utterance transcripts from the last 10 hours - actual words spoken in recent conversations
+3. **Conversations list**: Summaries of recent conversations for broader historical context
+
+Review facts first to understand who they are, use `bee now` to understand what's happening today with full detail, then check conversation summaries for longer-term context.
 
 ### Finding Information from Past Conversations
 
