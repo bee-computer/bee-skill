@@ -64,23 +64,12 @@ Check if `bee` CLI is installed:
 bee --version
 ```
 
-If not installed, download from https://github.com/bluush-co/bee-cli/releases/latest
-
-Select the binary for the current platform:
-- macOS ARM: `bee-darwin-arm64`
-- macOS Intel: `bee-darwin-amd64`
-- Linux: `bee-linux-amd64`
-- Windows: `bee-windows-amd64.exe`
-
-Download and make executable:
+If not installed, install via npm:
 ```bash
-# Example for macOS ARM
-curl -L -o bee https://github.com/bluush-co/bee-cli/releases/latest/download/bee-darwin-arm64
-chmod +x bee
-sudo mv bee /usr/local/bin/
+npm install -g @beeai/cli
 ```
 
-The binary can be used directly without additional installation steps.
+Alternatively, download binaries directly from https://github.com/bluush-co/bee-cli/releases/latest
 
 ## Authentication
 
