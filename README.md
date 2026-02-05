@@ -5,9 +5,11 @@
   Skill for Bee AI
 </h1>
 
-<h4 align="center">
-Connect Bee AI data with your agents
-</h4>
+<div align="center">
+
+[🌐 **Website**](https://bee.computer) • [📱 **iOS App**](https://apps.apple.com/us/app/bee-your-personal-ai/id6480349491) • 🤖 **Android Coming Soon** • [🔨 **Bee CLI**](https://github.com/bee-computer/bee-cli)
+
+</div>
 
 A comprehensive skill for [Bee](https://www.bee.computer/) — the wearable AI that captures your conversations and learns about you.
 
