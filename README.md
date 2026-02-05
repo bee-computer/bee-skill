@@ -14,7 +14,7 @@ A comprehensive skill for [Bee](https://www.bee.computer/) — the wearable AI t
 ## Installation
 
 ```
-npx skills add Bluush-co/bee-skill
+npx skills add bee-computer/bee-skill
 ```
 
 ## What This Skill Enables
@@ -55,7 +55,7 @@ All Bee data is end-to-end encrypted and accessible only to you. The agent acces
 
 ## Requirements
 
-- [Bee CLI](https://github.com/bluush-co/bee-cli/releases/latest) installed
+- [Bee CLI](https://github.com/bee-computer/bee-cli/releases/latest) installed
 - Bee account with authenticated session
 
 ## License

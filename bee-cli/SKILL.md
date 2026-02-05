@@ -69,7 +69,7 @@ If not installed, install via npm:
 npm install -g @beeai/cli
 ```
 
-Alternatively, download binaries directly from https://github.com/bluush-co/bee-cli/releases/latest
+Alternatively, download binaries directly from https://github.com/bee-computer/bee-cli/releases/latest
 
 ## Authentication
 
@@ -80,12 +80,12 @@ bee status
 
 If not authenticated, initiate login:
 ```bash
-bee login --agent
+bee login
 ```
 
-### Agent Authentication Flow
+### Authentication Flow
 
-The `--agent` flag initiates a secure authentication flow designed for AI agents. The command outputs detailed instructions that must be followed carefully:
+The login command initiates a secure authentication flow. The command outputs detailed instructions that must be followed carefully:
 
 1. **Read and relay the output**: The command prints a welcome message, explains the authentication process, and provides an authentication link. Present this information to the user clearly.
 
@@ -93,7 +93,7 @@ The `--agent` flag initiates a secure authentication flow designed for AI agents
 
 3. **Wait for approval**: The CLI will automatically poll and wait for the user to complete authorization. Do not interrupt this process while waiting.
 
-4. **Resumable sessions**: If the process is interrupted (killed or stopped), it can be restarted by running `bee login --agent` again. The CLI will resume the previous authentication session if it hasn't expired, preserving the same authentication link.
+4. **Resumable sessions**: If the process is interrupted (killed or stopped), it can be restarted by running `bee login` again. The CLI will resume the previous authentication session if it hasn't expired, preserving the same authentication link.
 
 5. **Expiration**: Authentication requests expire after approximately 5 minutes. If expired, a new session will be started automatically.
 
