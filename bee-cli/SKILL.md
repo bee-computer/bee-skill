@@ -86,18 +86,7 @@ bee login
 5. **Expiration.** Requests expire after ~5 minutes; a new session starts automatically.
 6. **Confirmation.** On approval the CLI prints a success message with the user's name. Only run other commands after seeing it.
 
-### Non-interactive login
-
-When a token is already available (e.g. running headless or in automation), skip the browser flow:
-
-```bash
-bee login --token-stdin    # reads the token from stdin — preferred, keeps it out of argv/shell history
-echo "$BEE_TOKEN" | bee login --token-stdin
-
-bee login --token <token>  # token as an argument (avoid where process args are logged)
-```
-
-`--token-stdin` requires the token piped via stdin (it errors if stdin is a TTY). The login flags `--token`, `--token-stdin`, and `--proxy <url|socket>` are mutually exclusive. Use proxy auth (`--proxy`) only when a trusted local process handles Bee API auth on your behalf.
+Login flags (mutually exclusive): `--token <token>`, `--token-stdin`, `--proxy <url|socket>`.
 
 To see the authenticated profile: `bee me [--json]`. To sign out: `bee logout`.
 
