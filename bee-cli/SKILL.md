@@ -1,6 +1,6 @@
 ---
 name: bee-cli
-description: "Access real-time context and life overview from Bee wearable AI. ALWAYS start with 'bee now' to get the last 10 hours of conversations with full utterances - this is the most valuable context for relevant assistance. Use this skill when: (1) You need to understand what's happening RIGHT NOW - recent conversations, current context, what was just discussed, (2) The user asks about something that just happened or someone they just talked to, (3) You need life context - who the owner is, their relationships, work, preferences, (4) Searching past conversations, managing facts/todos, or syncing Bee data."
+description: "Access real-time context and life history from Bee, a wearable AI that captures and transcribes the owner's conversations. ALWAYS start with 'bee now' for the last 10 hours of conversations with full utterances - the highest-value context for relevant help. Use this skill when: (1) you need to know what's happening RIGHT NOW - recent conversations, current context, what was just discussed; (2) the user asks about something that just happened or someone they just talked to; (3) you need life context - who the owner is, relationships, work, preferences, places they go, photos; (4) searching past conversations/daily summaries/facts, recalling where the owner was, reviewing insights, or managing facts and todos; (5) syncing or monitoring Bee data."
 ---
 
 # Bee CLI
@@ -9,597 +9,477 @@ CLI client for Bee - the wearable AI that captures conversations and learns abou
 
 ## About Bee
 
-Bee is a wearable AI device that continuously captures and transcribes ambient audio from the owner's daily life. The device listens to conversations, meetings, phone calls, and any spoken interactions throughout the day, creating a comprehensive record of the owner's verbal communications and experiences.
-
-### How Bee Works
-
-Bee uses advanced speech recognition to transcribe all ambient audio in real-time. This includes:
-
-- Face-to-face conversations with friends, family, and colleagues
-- Business meetings and professional discussions
-- Phone calls and video conferences
-- Personal reflections and voice notes
-- Overheard conversations in the owner's environment
-
-From these transcriptions, Bee automatically extracts and learns facts about the owner - their preferences, relationships, work projects, commitments, and personal details mentioned in conversations.
+Bee is a wearable AI device that continuously captures and transcribes ambient audio from the owner's daily life: conversations, meetings, phone calls, and any spoken interactions. From these transcriptions Bee automatically extracts facts about the owner - preferences, relationships, work projects, commitments, and personal details - and produces daily summaries, insights, and a location history.
 
 ### Privacy and Security
 
-**Bee data is extremely sensitive.** The transcriptions contain intimate details of the owner's personal and professional life, including private conversations that were never intended to be recorded or shared.
+**Bee data is extremely sensitive.** Transcriptions contain intimate details of the owner's personal and professional life, including private conversations never intended to be recorded or shared.
 
-**All Bee data is end-to-end encrypted and accessible only to the owner.** The encryption ensures that:
+**All Bee data is end-to-end encrypted and accessible only to the owner.** Only the authenticated owner can read their content; no third party (including Bee's servers) can read the decrypted data.
 
-- Only the authenticated owner can access their conversation transcripts
-- No third parties, including Bee's servers, can read the decrypted content
-- The data remains private even if storage systems are compromised
-- Access requires explicit authentication through the owner's credentials
+**Treat all Bee information as highly confidential.** The owner has entrusted access to their most private conversations and personal details. Never expose, forward, or store this data outside what the user explicitly asks for.
 
-**When working with Bee data, treat all information as highly confidential.** The owner has entrusted access to their most private conversations and personal details.
+## Capability Map - Which Command for Which Question
 
-## When to Use This Skill
+Pick the command by what the user is asking. Reach for `bee search` instead of manually listing-and-scanning whenever the question is "did I ever / when did I / what did we say about ...".
 
-### Real-Time Context (Use First!)
+| The user wants to know... | Use |
+| --- | --- |
+| What's happening right now / what was just said (last 10h) | `bee now` |
+| Today's plan, calendar, email brief | `bee today` |
+| Today's wearable context (summary + active todos + notes + conversations) | `bee today --context` |
+| Recent activity across everything (conversations, summaries, notes, todos, insights) | `bee activity` |
+| Find conversations/daily/facts about a topic | `bee search --query "..."` |
+| Semantic ("what was the vibe / find similar") search of conversations | `bee search --query "..." --neural` |
+| Full verbatim transcript of one conversation | `bee conversations transcript <id>` (or `get <id>`) |
+| Conversations similar to a given one | `bee conversations related <id>` |
+| Who the owner is / preferences / relationships / work | `bee facts list`, `bee facts search --query "..."` |
+| Action items / commitments | `bee todos list`; suggestions via `bee todos suggestions` |
+| What happened on a given day | `bee daily find <YYYY-MM-DD>` |
+| Browse day-by-day summaries | `bee daily list` |
+| Owner's intentional voice memos | `bee journals list`, `bee journals search --query "..."` |
+| AI-generated patterns/insights about the owner | `bee insights list` |
+| Where the owner has been / frequent places / current location | `bee locations recent`, `bee locations clusters`, `bee locations current` |
+| Photos captured by the device | `bee photos list`, `bee photos get <id> --output PATH` |
+| What changed since last check (incremental monitoring) | `bee changed --cursor <cursor>` |
+| Export everything to local markdown (backup / offline) | `bee sync` |
+| Who am I authenticated as | `bee me`, `bee status` |
 
-**Always start with `bee now` to understand what's happening right now.** This is the most valuable context for providing relevant assistance:
+**Output format:** every data command prints markdown by default. Add `--json` for programmatic parsing - prefer it whenever you will parse the output rather than show it to the user.
 
-- The owner just finished a conversation and needs help following up
-- The owner is asking about something that was just discussed
-- You need current context to provide relevant suggestions
-- The owner wants to recall what someone just said
+**Source of truth:** conversation **summaries** (from `list`, `daily`, `search` results) are AI-generated and may contain minor inaccuracies. **Utterances** (from `bee now`, `conversations get`, `conversations transcript`) are verbatim and authoritative. When accuracy matters, read the utterances.
 
-### Life Overview
-
-Use for broader context about who the owner is:
-
-- **Learning about the owner**: Access facts that Bee has extracted from conversations to understand the owner's preferences, relationships, work, and personal details
-- **Searching for relevant conversations**: Find past conversations on specific topics, with certain people, or about particular projects
-- **Managing personal knowledge**: View, update, or organize the facts Bee has learned
-- **Tracking commitments**: Access todos and action items extracted from conversations
-- **Reviewing daily activity**: See summaries of each day's conversations and interactions
+**Pagination:** list responses return a `next_cursor` field (null when there is no more data). Pass its value back via the `--cursor` flag to fetch the next page.
 
 ## Installation
 
-Check if `bee` CLI is installed:
+Check if installed:
 ```bash
 bee --version
 ```
 
-If not installed, install via npm:
+If not installed:
 ```bash
 npm install -g @beeai/cli
 ```
 
-Alternatively, download binaries directly from https://github.com/bee-computer/bee-cli/releases/latest
+Or download binaries from https://github.com/bee-computer/bee-cli/releases/latest
 
 ## Authentication
 
-Check authentication status:
+Check status:
 ```bash
 bee status
 ```
 
-If not authenticated, initiate login:
+If not authenticated:
 ```bash
 bee login
 ```
 
-### Authentication Flow
+`bee login` initiates a secure flow and prints instructions you must relay to the user:
 
-The login command initiates a secure authentication flow. The command outputs detailed instructions that must be followed carefully:
+1. **Relay the output.** It prints a welcome message and an authentication URL like `https://bee.computer/connect/{requestId}`. Present it clearly.
+2. **The user opens the link** in a browser and approves the connection.
+3. **Wait for approval.** The CLI polls automatically. Do not interrupt while waiting.
+4. **Resumable.** If interrupted, re-run `bee login` to resume the same (unexpired) session.
+5. **Expiration.** Requests expire after ~5 minutes; a new session starts automatically.
+6. **Confirmation.** On approval the CLI prints a success message with the user's name. Only run other commands after seeing it.
 
-1. **Read and relay the output**: The command prints a welcome message, explains the authentication process, and provides an authentication link. Present this information to the user clearly.
+Login flags (mutually exclusive): `--token <token>`, `--token-stdin`, `--proxy <url|socket>`.
 
-2. **Authentication link**: The output includes a URL like `https://bee.computer/connect/{requestId}`. The user must open this link in their browser and follow the instructions there to approve the connection.
+To see the authenticated profile: `bee me [--json]`. To sign out: `bee logout`.
 
-3. **Wait for approval**: The CLI will automatically poll and wait for the user to complete authorization. Do not interrupt this process while waiting.
+## Real-Time Context (Use First!)
 
-4. **Resumable sessions**: If the process is interrupted (killed or stopped), it can be restarted by running `bee login` again. The CLI will resume the previous authentication session if it hasn't expired, preserving the same authentication link.
-
-5. **Expiration**: Authentication requests expire after approximately 5 minutes. If expired, a new session will be started automatically.
-
-6. **Success confirmation**: Once the user approves, the CLI outputs a success message with the authenticated user's name. Only proceed with other commands after seeing this confirmation.
-
-**Important**: Always read and follow the prompts from the command output. The CLI provides specific instructions tailored to the current authentication state (new session, resumed session, or expired session).
-
-## Commands
-
-### Facts - Learn About the Owner
-
-Facts are pieces of information Bee has learned about the owner from their conversations. This is the primary way to understand who the owner is, what they care about, and what's happening in their life.
-
-List all facts:
-```bash
-bee facts list
-```
-
-**Confirmed vs Non-Confirmed Facts:**
-
-Facts are categorized as either confirmed or non-confirmed:
-
-- **Confirmed facts**: Explicitly verified by the owner or clearly stated in conversations. These are reliable and should be trusted.
-- **Non-confirmed facts**: Inferred or extracted from context but not explicitly verified. These may be accurate but could also be misinterpretations.
-
-When using facts, always prefer confirmed facts first. Non-confirmed facts can be used for speculation or additional context, but treat them as potentially inaccurate. If making decisions or providing information based on non-confirmed facts, acknowledge the uncertainty.
-
-Facts include information like:
-- Personal preferences ("prefers morning meetings", "allergic to peanuts")
-- Relationships ("married to Sarah", "manager is John")
-- Work details ("working on Project Atlas", "deadline is March 15")
-- Interests and hobbies ("learning Spanish", "training for marathon")
-- Contact information and personal details
-
-Create a fact:
-```bash
-bee facts create --text "I prefer morning meetings"
-```
-
-Update a fact:
-```bash
-bee facts update <id> --text "Updated fact text"
-```
-
-Delete a fact:
-```bash
-bee facts delete <id>
-```
-
-### Conversations - Access Transcripts
-
-Conversations are records of everything Bee has captured. Use these to find specific details, recall what was discussed, or search for information mentioned in past interactions.
-
-#### Listing Conversations
+**Always start with `bee now`.** It fetches all conversations from the **last 10 hours** with their full utterances - the single most valuable context for timely, relevant help.
 
 ```bash
-bee conversations list
+bee now          # markdown
+bee now --json   # programmatic
 ```
 
-**Important**: This returns conversation **summaries only**, not full transcripts. Summaries are AI-generated and provide a quick overview of what was discussed, but they may contain minor inaccuracies or hallucinations. Use summaries to identify relevant conversations, then fetch full details for accuracy.
+Returns, for the past 10 hours: conversations with verbatim utterances (who said what), summaries, states, and timestamps in the owner's timezone.
 
-Options:
-- `--limit <n>` - Number of conversations to return (default varies)
-- `--cursor <cursor>` - Pagination cursor for fetching more results
+Use it when the owner just finished a conversation and needs follow-up, is asking about something just discussed, or you need current context for suggestions.
 
-#### Getting Full Conversation Details
-
-To get the complete conversation with all utterances (actual words spoken):
-```bash
-bee conversations get <id>
-```
-
-This returns:
-- Full utterance transcripts (who said what, verbatim)
-- Speaker identification
-- Timestamps for each utterance
-- Conversation state and metadata
-
-**Always use `bee conversations get` when you need accurate information.** The summaries from `list` are useful for browsing and finding relevant conversations, but the actual utterances from `get` are the source of truth.
-
-### Search for Relevant Conversations
-
-To find conversations about specific topics:
-
-1. List conversations to browse summaries and identify potentially relevant ones
-2. Get full details for conversations that seem relevant
-3. Read the actual utterances to find accurate information
+### Today
 
 ```bash
-bee conversations list
-bee conversations get <conversation-id>
+bee today              # Today Brief: calendar / email-style daily brief
+bee today --context    # Wearable context: daily summary + active todos + notes + recent conversations
+bee today --json
 ```
 
-Remember: Summaries may not capture everything or may slightly misrepresent what was said. When accuracy matters, always read the full utterances.
+Use plain `bee today` for the day's plan; use `--context` when you want the same aggregated wearable context an assistant would use to ground the day.
 
-### Journals - Voice Memos
-
-Journals are voice memos recorded by the owner through Bee. Unlike conversations (which are ambient recordings), journals are intentional recordings where the owner speaks directly to capture thoughts, ideas, or notes.
-
-#### Listing Journals
+### Recent Activity
 
 ```bash
-bee journals list
+bee activity [--limit N]   # --limit max 20
 ```
 
-Returns a list of journal entries with:
-- Journal ID
-- State: `PREPARING` (recording), `ANALYZING` (processing), or `READY` (complete)
-- Transcribed text (summary)
-- Timestamps
+A unified recent feed across conversations, summaries, notes, todos, and insights. Good for "what have I been up to lately" at a glance.
 
-Options:
-- `--limit <n>` - Number of journals to return
-- `--cursor <cursor>` - Pagination cursor for more results
-- `--json` - Output in JSON format
+## Searching - Prefer Over Manual Scanning
 
-#### Getting Full Journal Details
+`bee search` runs server-side and is the right tool for topic/recall questions. Do **not** list every conversation and read it yourself when you can search.
 
 ```bash
-bee journals get <id>
+bee search --query "marathon training" [--limit N] [--since <epochMs>] [--until <epochMs>] [--json]
 ```
 
-Returns the complete journal entry with full transcribed text.
+Two modes:
 
-Options:
-- `--json` - Output in JSON format
+- **Keyword (default):** BM25 over conversations, daily summaries, and facts.
+  - `--filter conversations|daily|facts|all` (default `all`) - scope what is searched.
+  - `--scope conversations|all` - alias that maps onto `--filter`.
+  - `--sort relevance|mostRecent` (default `relevance`); `--sortBy` is an accepted alias.
+- **Semantic / neural (`--neural`):** vector search over **conversations only**. The keyword-only flags (`--filter`/`--scope`/`--sort`/`--sortBy`) are rejected in this mode. Use it for fuzzy/conceptual recall ("find when I talked about feeling burned out").
 
-Use journals to understand:
-- The owner's personal thoughts and reflections
-- Ideas they wanted to remember
-- Notes to themselves
-- Voice memos about tasks or plans
-
-### Todos - Track Commitments
-
-Todos are action items and commitments extracted from conversations.
-
-List todos:
-```bash
-bee todos list
-```
-
-Create a todo:
-```bash
-bee todos create --text "Buy groceries"
-```
-
-Update a todo:
-```bash
-bee todos update <id> --text "Updated todo" --completed
-```
-
-Delete a todo:
-```bash
-bee todos delete <id>
-```
-
-### Now - Real-Time Context
-
-Get a comprehensive view of what's happening right now. Fetches conversations and full utterances from the last 10 hours:
-```bash
-bee now
-```
-
-This command returns:
-- All conversations from the past 10 hours
-- Full utterance transcripts (who said what)
-- Conversation summaries and states
-- Timestamps in the user's timezone
-
-Use `bee now` when you need to:
-- Understand what the owner has been doing today
-- Get context about recent discussions
-- See the actual words spoken in recent conversations
-- Provide relevant assistance based on current activities
-
-For JSON output (useful for programmatic processing):
-```bash
-bee now --json
-```
-
-### Daily Summaries
-
-View summaries of daily conversations and activities:
-```bash
-bee daily
-```
-
-View a specific date:
-```bash
-bee daily --date <YYYY-MM-DD>
-```
-
-### Periodic Sync - Real-Time Updates with `bee changed`
-
-For periodic checks and real-time updates, use `bee changed`. This is the recommended way to monitor for new data and know exactly what changed.
+`--since` and `--until` (epoch milliseconds) bound results by time and work in **both** modes.
 
 ```bash
-bee changed
+bee search --query "project atlas deadline" --filter conversations --sort mostRecent
+bee search --query "how I felt about the move" --neural --limit 10
+bee search --query "dentist" --filter facts
 ```
 
-Options:
-- `--cursor <cursor>` - Resume from a previous position to get only new changes
-- `--json` - Output in JSON format
+Note: `--cursor` is **not** supported by search and will error; use `--since`/`--until` to page through time instead. Todos and insights are not searchable here - use `bee todos list` and `bee insights list`.
 
-**What it returns**:
-- Time range covered (since/until timestamps)
-- `Next Cursor` for subsequent calls
-- Full details of all changed entities:
-  - New and updated facts (confirmed and pending)
-  - New and updated todos
-  - New and updated daily summaries
-  - New and updated conversations
-  - New and updated journals
+## Facts - Learn About the Owner
 
-#### Cursor Handling
+Facts are what Bee has learned about the owner from conversations - the primary way to understand who they are.
 
-The cursor is essential for efficient change tracking. The output includes a `Next Cursor` value that must be persisted for subsequent calls.
+**Confirmed vs. unconfirmed:**
+- **Confirmed facts** are verified by the owner or clearly stated. Trust them.
+- **Unconfirmed facts** are inferred from context and may be misinterpretations. Use for context/speculation only, and flag the uncertainty when you act on them.
 
-**First call** (no cursor):
-```bash
-bee changed
-```
-Returns recent changes and outputs a `Next Cursor: <value>` line.
-
-**Subsequent calls** (with cursor):
-```bash
-bee changed --cursor <cursor_value>
-```
-Returns only changes that occurred after the cursor position.
-
-**Critical: When to persist the cursor**
-
-The cursor must be saved **only after you have fully processed the changes**, not immediately after receiving them. This ensures that if processing fails or is interrupted, you can retry with the same cursor and receive the same changes again.
-
-**Cursor workflow**:
-1. Read the stored cursor from `.bee-cursor` file (if exists)
-2. Call `bee changed --cursor <cursor>` (or without cursor on first run)
-3. The output includes `Next Cursor: <value>` - note this value but DO NOT save it yet
-4. Process all the returned changes (update user.md, handle todos, etc.)
-5. Only after processing completes successfully, save the new cursor to `.bee-cursor`
-6. Repeat from step 1 on next check
-
-**Example**:
-```
-# Output from bee changed includes:
-Next Cursor: abc123xyz
-
-# After processing all changes successfully:
-echo "abc123xyz" > .bee-cursor
-```
-
-**Why this matters**: If you save the cursor before processing and then processing fails, you'll lose those changes forever. By saving only after successful processing, you guarantee exactly-once processing of each change.
-
-### Full Sync - Export Everything to Markdown
-
-If you want to sync everything to local markdown files, use `bee sync`. This creates a complete local library of all Bee data.
+Prefer confirmed facts. List unconfirmed-only with `--unconfirmed`.
 
 ```bash
-bee sync
+bee facts list [--limit N] [--cursor <cursor>] [--unconfirmed] [--json]
+bee facts get <id> [--json]
+bee facts search --query "allergies" [--limit N] [--json]
+bee facts create --text "I prefer morning meetings" [--json]
+bee facts update <id> --text "Updated text" [--confirmed <true|false>] [--json]
+bee facts delete <id> [--json]
 ```
 
-Options:
-- `--output <dir>` - Output directory (default: ./bee-sync)
-- `--only <targets>` - Sync specific data types: `facts`, `todos`, `daily`, `conversations` (comma-separated)
+`facts update` requires `--text`; pass `--confirmed true` or `--confirmed false` to also change the confirmation state. Use `bee facts search` rather than paging through `facts list` when looking for something specific.
 
-**Purpose**: Full sync exports all Bee data to markdown files. This is useful for:
-- Creating a complete offline backup
-- Integration with tools that read markdown
-- Full-text search across all historical data
-- Initial setup before using `bee changed` for incremental updates
+## Conversations - Access Transcripts
 
-**Note**: Sync overwrites existing files and does not tell you what changed. For periodic checks where you need to know what's new, use `bee changed` instead.
+Conversations are records of captured ambient audio.
+
+```bash
+bee conversations list [--limit N] [--cursor <cursor>] [--json]
+bee conversations get <id> [--json]
+bee conversations transcript <id> [--json]
+bee conversations related <id> [--limit N] [--json]   # --limit max 10
+```
+
+- `list` returns **summaries only** - browse to find relevant conversations. The response includes `next_cursor` for paging.
+- `get` returns the full conversation: utterances (verbatim, with speaker and timestamps), state, and metadata.
+- `transcript` returns just the verbatim utterance transcript for one conversation.
+- `related` finds conversations similar to a given one - useful for assembling all discussions on a thread/topic.
+
+**For accuracy, read utterances** from `get`/`transcript`. Summaries from `list` are for browsing only.
+
+For topic search, prefer `bee search` over listing everything manually.
+
+## Daily Summaries
+
+```bash
+bee daily list [--limit N] [--cursor <cursor>] [--json]   # browse day-by-day
+bee daily get <id> [--json]
+bee daily find <YYYY-MM-DD> [--json]                      # look up a specific date
+```
+
+There is no bare `bee daily` and no `--date` flag. To get a specific day, use `bee daily find 2026-06-01`.
+
+## Journals - Voice Memos
+
+Journals are intentional voice memos the owner records (distinct from ambient conversations). Aka voice notes.
+
+```bash
+bee journals list [--limit N] [--cursor <cursor>] [--json]
+bee journals search --query "ideas for the talk" [--limit N] [--json]
+bee journals get <id> [--json]
+```
+
+`list` returns entries with id, state (`PREPARING` = recording, `ANALYZING` = processing, `READY` = complete), transcribed text, and timestamps. `get` returns the full transcribed text. Use `journals search` to find a memo by content.
+
+## Insights
+
+AI-generated patterns and observations about the owner.
+
+```bash
+bee insights list [--limit N] [--json]   # --limit max 50
+bee insights get <id> [--json]
+```
+
+Use when the user wants higher-level patterns rather than raw conversations.
+
+## Locations
+
+Where the owner has been.
+
+```bash
+bee locations recent [--from <date>] [--to <date>] [--limit N] [--json]   # --limit max 100
+bee locations clusters [--limit N] [--min-visits N] [--visits] [--json]   # frequent places; --limit max 20
+bee locations current [--json]                                            # latest known location
+```
+
+`--from`/`--to` accept `YYYY-MM-DD` or an ISO timestamp (owner's timezone). `clusters` groups frequently visited places; `--min-visits N` filters by visit count and `--visits` includes per-visit detail. Use for "where was I on ...", "what places do I go", "where am I now".
+
+## Photos
+
+Photos captured by the device.
+
+```bash
+bee photos list [--daily-id N] [--date YYYY-MM-DD] [--limit N] [--json]   # --limit max 20
+bee photos get <id> [--output PATH] [--json]
+```
+
+Scope `list` by a daily summary id or by date. `get` retrieves a single photo; pass `--output PATH` to save it to disk.
+
+## Todos - Track Commitments
+
+Action items and commitments, including ones Bee suggests from conversations.
+
+```bash
+bee todos list [--limit N] [--cursor <cursor>] [--json]
+bee todos get <id> [--json]
+bee todos create --text "Buy groceries" [--alarm-at <iso>] [--json]
+bee todos update <id> [--text "Updated"] [--completed <true|false>] [--alarm-at <iso> | --clear-alarm] [--json]
+bee todos complete <id> [--json]
+bee todos delete <id> [--json]
+```
+
+- `--completed` **takes a value**: `--completed true` or `--completed false`. To simply mark done, use the dedicated `bee todos complete <id>`.
+- On `update`, set a reminder with `--alarm-at <iso>` or remove one with `--clear-alarm` (mutually exclusive).
+
+**Suggestions workflow** - Bee proposes todos from conversations; review and act on them:
+
+```bash
+bee todos suggestions [--limit N] [--json]      # --limit max 50; list proposed todos
+bee todos accept-suggestion <id> [--json]       # promote a suggestion to a real todo
+bee todos dismiss-suggestion <id> [--json]      # reject a suggestion
+```
+
+## Monitoring Changes - `bee changed` vs `bee sync`
+
+Two ways to stay current. Choose based on whether you want to *know what changed* or *have a complete local copy*.
+
+### `bee changed` - incremental changefeed (know what's new)
+
+Best for periodic checks: it tells you exactly what changed and gives a cursor to resume from. Defaults to roughly the last 24 hours when no cursor is given.
+
+```bash
+bee changed [--cursor <cursor>] [--json]
+```
+
+Returns the covered time range, a `Next Cursor:` line (and `next_cursor` in JSON), and the changed facts, todos, daily summaries, conversations, and journals (new and updated).
+
+**Cursor handling** - persist the cursor only **after** you finish processing the batch, so a failure lets you retry the same changes (exactly-once processing):
+
+1. Read the stored cursor from `.bee-cursor` (if it exists). *(`.bee-cursor` is a convention this skill uses, not a CLI feature.)*
+2. Run `bee changed --cursor <cursor>` (omit `--cursor` on the first run).
+3. Note the `Next Cursor:` value but do **not** save it yet.
+4. Process all returned changes (update notes, handle todos, etc.).
+5. Only after success, save the new cursor: `echo "<value>" > .bee-cursor`.
+6. Repeat.
+
+### `bee sync` - export to local markdown (have a copy)
+
+Exports Bee data to markdown files for offline backup, full-text search, or feeding other tools.
+
+```bash
+bee sync [--output <dir>] [--recent-days N] [--full] [--since <epochMs>] [--only <facts|todos|daily|conversations>]
+```
+
+- **Incremental by default.** Re-runs re-fetch only changed daily summaries and conversations using a `.bee-sync.json` manifest stored in the output dir (facts and todos are always fully re-fetched). The first run is a full sync.
+- `--output <dir>` - output directory (default `bee-sync`).
+- `--full` - force a complete re-sync, ignoring the manifest.
+- `--since <epochMs>` - advanced/recovery override of the saved incremental cursor.
+- `--recent-days N` - limit daily/conversations to the last N days. **Applies to full syncs only** (first run or `--full`); ignored on incremental re-runs.
+- `--only <list>` - sync only some types: `facts`, `todos`, `daily`, `conversations` (comma-separated).
+
+**Note:** sync does not reconcile deletions (removed items are not pruned locally). If you need to know precisely *what changed* rather than maintain a mirror, use `bee changed`.
 
 ## Common Workflows
 
-### Quick Context - Understanding the Owner
+### Quick context about the owner
 
-For quick context about the owner, always run these commands in this order:
+Run in this order:
 ```bash
-bee now
-bee facts list
-bee conversations list
+bee now            # last 10h with full utterances - most important
+bee facts list     # who the owner is: preferences, relationships, work
+bee today --context  # today's aggregated wearable context
 ```
 
-**Start with `bee now`** — this is the most important command. It gives you:
-- Full utterance transcripts from the last 10 hours
-- Actual words spoken in recent conversations
-- Immediate context about what's happening right now
+`bee now` makes help relevant and timely; facts and today's context fill in the bigger picture.
 
-Then supplement with:
-- **Facts**: Who the owner is, their preferences, relationships, work details
-- **Conversations list**: Summaries of older conversations for historical context
+### Find something from a past conversation
 
-The real-time context from `bee now` is what makes assistance relevant and timely.
-
-### Finding Information from Past Conversations
-
-To find something mentioned in a past conversation:
+Prefer search over manual scanning:
 ```bash
-bee conversations list
-bee conversations show <relevant-conversation-id>
+bee search --query "the topic or person" --filter conversations --sort mostRecent
+bee conversations get <id>     # read verbatim utterances for the best hit
 ```
 
-List conversations to find the relevant timeframe or topic, then view the full transcript.
+If recall is fuzzy/conceptual, use `--neural`. Use `bee conversations related <id>` to gather the rest of a thread.
 
-### Export All Data for AI Context
+### Where was I / where do I go
 
-Sync everything to markdown for comprehensive access:
+```bash
+bee locations current
+bee locations recent --from 2026-06-01 --to 2026-06-06
+bee locations clusters --min-visits 5 --visits
+```
+
+### Export all data for AI context
+
 ```bash
 bee sync --output ./my-bee-data
 ```
 
-This creates markdown files for facts, todos, daily summaries, and conversation transcripts.
+Creates markdown for facts, todos, daily summaries, and conversation transcripts; re-run to incrementally update.
 
 ## Deep Learning About the Owner
 
-When you need to build comprehensive knowledge about the owner by processing their entire conversation history, use the following multi-agent workflow. This is useful for building a rich understanding of who the owner is, their relationships, work, interests, and life context.
+To build comprehensive knowledge of the owner by processing their full conversation history, use this multi-agent workflow. It processes conversations in batches via a chain of subagents, passing state through files to preserve context.
 
-### Overview
+Each subagent: fetches a batch of conversations, reads the current `user.md`, extracts insights, updates `user.md`, writes a handoff summary, and spawns the next subagent for older conversations.
 
-The deep learning workflow processes conversations in batches using a chain of subagents. Each subagent:
-1. Fetches a batch of conversations (100 at a time)
-2. Reads the current `user.md` profile
-3. Analyzes conversations and extracts insights
-4. Updates `user.md` with new information
-5. Writes a summary to a handoff file
-6. Spawns the next subagent to continue processing older conversations
-
-This architecture optimizes context usage by:
-- Running heavy processing in subagents (isolated context)
-- Passing state via files rather than copying text between agents
-- Allowing the main agent to remain responsive
-- Enabling progress reporting after each batch
+> Tip: for targeted questions, `bee search` is usually faster than a full deep-learning pass. Use deep learning only when you genuinely need the whole history.
 
 ### File Structure
 
-Create these files in the working directory:
+In the working directory:
+- `user.md` - cumulative profile of the owner (persistent, updated each batch).
+- `bee-learning-summary.md` - handoff: latest summary plus the `next_cursor` for the next batch.
+- `bee-learning-progress.md` - progress log of what was processed and when.
 
-- `user.md` - Cumulative profile of the owner (persistent, updated by each subagent)
-- `bee-learning-summary.md` - Handoff file with latest summary and cursor for next batch
-- `bee-learning-progress.md` - Progress log showing what was processed and when
+### Step 1: Initialize (Main Agent)
 
-### Workflow Steps
-
-#### Step 1: Initialize (Main Agent)
-
-Create initial `user.md` if it doesn't exist:
+Create `user.md` if absent:
 ```markdown
 # User Profile
 
-This document contains learned information about the owner from their Bee conversations.
+Learned information about the owner from their Bee conversations.
 
 ## Basic Information
-(To be populated)
-
 ## Relationships
-(To be populated)
-
 ## Work & Projects
-(To be populated)
-
 ## Interests & Hobbies
-(To be populated)
-
 ## Preferences
-(To be populated)
-
 ## Important Dates & Events
-(To be populated)
-
 ## Notes
-(To be populated)
 ```
 
-#### Step 2: Launch First Processing Subagent
+### Step 2: First Processing Subagent
 
 Spawn a subagent with this task:
 
 ```
 Process Bee conversations to learn about the owner.
 
-1. Fetch the 100 most recent conversations:
-   bee conversations list --limit 100
+1. Fetch the 100 most recent conversations (use --json to parse reliably):
+   bee conversations list --limit 100 --json
 
-2. Read the current user.md file
+2. Read the current user.md file.
 
-3. For each conversation, extract:
-   - Who the owner talked to (relationships)
-   - Topics discussed (interests, work projects)
-   - Personal details mentioned (preferences, facts about their life)
-   - Commitments made (things they said they would do)
-   - Important dates or events mentioned
+3. For each conversation, extract: who the owner talked to (relationships),
+   topics (interests, work), personal details (preferences, facts),
+   commitments made, and important dates/events.
 
-4. Update user.md with new information, organized by category.
-   Merge with existing content, don't overwrite.
-   Add timestamps for when information was learned.
+4. Update user.md, merging (do not overwrite) and adding timestamps.
 
-5. Write a summary to bee-learning-summary.md:
-   - Date range of conversations processed
-   - Key insights discovered
-   - The cursor value for fetching the next batch (from API response)
-   - Count of conversations processed so far
+5. Write bee-learning-summary.md with: date range processed, key insights,
+   the next_cursor value from the API response, and running count.
 
-6. Update bee-learning-progress.md with progress entry
+6. Update bee-learning-progress.md.
 
-7. If there are more conversations (cursor returned), spawn the next
-   subagent to continue processing. Pass only the file paths, not
-   the actual content - the next agent will read from files.
+7. If next_cursor is non-null, spawn the next subagent to continue with
+   older conversations. Pass only file paths, not content.
 ```
 
-#### Step 3: Chain Processing Subagents
+### Step 3: Chain Processing Subagents
 
-Each subsequent subagent receives a task like:
+Each subsequent subagent:
 
 ```
 Continue processing Bee conversations to learn about the owner.
 
-1. Read bee-learning-summary.md to get the cursor for the next batch
+1. Read bee-learning-summary.md to get the next_cursor for the next batch.
 
 2. Fetch the next 100 conversations:
-   bee conversations list --limit 100 --cursor <cursor_from_summary>
+   bee conversations list --limit 100 --cursor <next_cursor_from_summary> --json
 
-3. Read the current user.md file
+3. Read user.md.
 
-4. Process conversations and extract insights (same as previous agent)
+4. Extract insights as before.
 
-5. Update user.md with new information (merge, don't overwrite)
+5. Update user.md (merge, do not overwrite).
 
-6. Update bee-learning-summary.md with:
-   - New date range processed
-   - New insights discovered
-   - Next cursor (or "complete" if no more conversations)
-   - Updated total count
+6. Update bee-learning-summary.md with: new date range, new insights,
+   the new next_cursor (or "complete" if null), updated total count.
 
-7. Update bee-learning-progress.md
+7. Update bee-learning-progress.md.
 
-8. If there are more conversations, spawn the next subagent.
-   If no cursor returned (reached the end), write final summary
-   and report completion.
+8. If next_cursor is non-null, spawn the next subagent. If null (end reached),
+   write the final summary and report completion.
 ```
 
-#### Step 4: Progress Reporting
+### Step 4: Progress Reporting
 
-After processing each week's worth of conversations (approximately), the subagent should report back to the main conversation with:
-- Summary of what was learned in that time period
-- Notable events or conversations
-- Any significant changes to the user profile
-
-This keeps the user informed of progress without overwhelming them with details.
+After roughly each week's worth of conversations, report to the main conversation: what was learned, notable events, and significant profile changes. This keeps the user informed without overwhelming detail.
 
 ### Conversation List API
 
-Fetch conversations with pagination:
 ```bash
-# First batch (most recent)
-bee conversations list --limit 100
-
-# Subsequent batches using cursor from previous response
-bee conversations list --limit 100 --cursor <cursor_value>
+bee conversations list --limit 100 --json
+bee conversations list --limit 100 --cursor <next_cursor> --json
 ```
 
-The API returns:
-- `conversations`: Array of conversation objects
-- `cursor`: Pagination cursor for next batch (null when no more data)
+The response includes a `conversations` array and a `next_cursor` field (null when there is no more data). Page by passing the previous `next_cursor` back via `--cursor`.
 
 ### Best Practices
 
-1. **File-based handoff**: Always pass state between subagents via files (`bee-learning-summary.md`), never by copying large amounts of text into the task prompt. This preserves context window for actual processing.
-
-2. **Incremental updates**: Each subagent should merge new information into `user.md`, not replace it. Use clear section headers and timestamps.
-
-3. **Progress tracking**: Maintain `bee-learning-progress.md` as a log so you can resume if interrupted and track what's been processed.
-
-4. **Weekly summaries**: Report meaningful summaries to the user periodically (e.g., after each week of conversations processed) rather than after every batch.
-
-5. **Graceful completion**: When the cursor is null (no more conversations), write a final summary and notify the user that deep learning is complete.
-
-6. **Error handling**: If a subagent fails, the next attempt can read the progress files and resume from where it left off.
-
-### Example Progress File
-
-```markdown
-# Bee Learning Progress
-
-## Session: 2024-01-15
-
-- 14:30 - Started deep learning process
-- 14:32 - Processed conversations from Jan 10-15 (87 conversations)
-- 14:35 - Processed conversations from Jan 5-10 (92 conversations)
-- 14:38 - Processed conversations from Dec 28 - Jan 5 (78 conversations)
-- 14:40 - Week 1 summary reported to user
-- 14:42 - Processed conversations from Dec 21-28 (65 conversations)
-...
-- 15:30 - Completed processing all conversations (1,247 total)
-```
+1. **File-based handoff** - pass state between subagents via files, never by copying large text into prompts.
+2. **Incremental merge** - each subagent merges into `user.md` with clear headers and timestamps; never replace it.
+3. **Progress tracking** - keep `bee-learning-progress.md` so you can resume after interruption.
+4. **Periodic summaries** - report meaningfully (e.g., per week processed), not after every batch.
+5. **Graceful completion** - when `next_cursor` is null, write a final summary and notify the user.
+6. **Error handling** - on failure, the next attempt reads the progress files and resumes.
 
 ### When to Use Deep Learning
 
-Use this workflow when:
-- First establishing a relationship with a new user
-- User explicitly requests comprehensive analysis of their history
-- Building context for a long-term assistant relationship
-- User wants to understand patterns in their own conversations
+Use it when: first establishing a relationship with a new user; the user requests a comprehensive history analysis; building context for a long-term assistant relationship; the user wants to understand patterns in their own conversations.
 
-Do not use for:
-- Quick questions about recent events (use `bee daily` or recent conversations)
-- Looking up specific facts (use `bee facts list`)
-- Finding a particular conversation (use `bee conversations list` and search)
+Do **not** use it for: quick questions about recent events (use `bee now`, `bee daily find`, or `bee activity`); looking up specific facts (use `bee facts list` / `bee facts search`); finding a particular conversation (use `bee search`).
+
+## MCP Server
+
+The `bee` CLI is also an MCP server, so Bee tools can be exposed directly to MCP-aware clients.
+
+```bash
+bee mcp serve                              # stdio JSON-RPC server
+bee mcp serve-http --token <value> [--port N]   # HTTP server; token >= 32 chars (or env BEE_MCP_HTTP_TOKEN)
+bee mcp connect <claude|claude-code|codex>       # register Bee with a client
+bee mcp disconnect <claude|claude-code|codex>
+bee mcp status
+```
+
+## Utility Commands
+
+```bash
+bee me [--json]            # authenticated profile
+bee status                 # auth status
+bee version [--json]
+bee ping [--count N]       # connectivity check
+bee stream [--types <list>] [--json] [--agent] [--webhook-endpoint <url> --webhook-body <template>]
+bee proxy [--port N] [--socket [path]] [--idle-timeout SECONDS]
+```
