@@ -77,16 +77,17 @@ If not authenticated:
 bee login
 ```
 
-`bee login` initiates a secure flow and prints instructions you must relay to the user:
+**Prefer `bee login --no-wait` (recommended for agents).** Plain `bee login` BLOCKS, polling for up to ~5 minutes until the user approves — which stalls you waiting for the command to return. Instead:
 
-1. **Relay the output.** It prints a welcome message and an authentication URL like `https://bee.computer/connect/{requestId}`. Present it clearly.
-2. **The user opens the link** in a browser and approves the connection.
-3. **Wait for approval.** The CLI polls automatically. Do not interrupt while waiting.
-4. **Resumable.** If interrupted, re-run `bee login` to resume the same (unexpired) session.
-5. **Expiration.** Requests expire after ~5 minutes; a new session starts automatically.
-6. **Confirmation.** On approval the CLI prints a success message with the user's name. Only run other commands after seeing it.
+```bash
+bee login --no-wait    # prints the auth link and exits immediately (no polling)
+```
 
-Login flags (mutually exclusive): `--token <token>`, `--token-stdin`, `--proxy <url|socket>`.
+It prints an authentication URL like `https://bee.computer/connect/{requestId}`, saves a resumable session, and returns. Then: **send the link to the user**, and once they say they've approved it, run `bee status` to confirm (or `bee login` again to finish). Re-running `bee login --no-wait` before approval resumes the same link.
+
+If you DO want a blocking interactive session, plain `bee login` prints the same link and then polls automatically until approval; do not interrupt while it waits. Either way the request expires in ~5 minutes; on approval the CLI prints a success message with the user's name.
+
+Login flags: `--no-wait` (print link and exit), `--token <token>`, `--token-stdin`, `--proxy <url|socket>` (the last three are mutually exclusive; `--no-wait` applies to the interactive flow only).
 
 To see the authenticated profile: `bee me [--json]`. To sign out: `bee logout`.
 
