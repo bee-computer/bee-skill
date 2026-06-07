@@ -83,7 +83,7 @@ bee login
 bee login --no-wait    # prints the auth link and exits immediately (no polling)
 ```
 
-It prints an authentication URL like `https://bee.computer/connect/{requestId}`, saves a resumable session, and returns. Then: **send the link to the user**, and once they say they've approved it, run `bee status` to confirm (or `bee login` again to finish). Re-running `bee login --no-wait` before approval resumes the same link.
+It prints an authentication URL like `https://bee.computer/connect#{requestId}`, saves a resumable session, and returns. Then: **send the link to the user**, and once they say they've approved it, run `bee status` to confirm (or `bee login` again to finish). Re-running `bee login --no-wait` before approval resumes the same link.
 
 If you DO want a blocking interactive session, plain `bee login` prints the same link and then polls automatically until approval; do not interrupt while it waits. Either way the request expires in ~5 minutes; on approval the CLI prints a success message with the user's name.
 
